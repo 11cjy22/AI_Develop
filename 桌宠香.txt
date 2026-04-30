@@ -1,0 +1,107 @@
+extends Node2D
+class_name character
+
+signal chat
+signal chat2
+@onready var sittime: AnimatedSprite2D = $sittime
+
+@onready var ideltime: AnimatedSprite2D = $ideltime
+
+
+
+
+enum state{
+	IDEL,
+	AOJIAO,
+	SIT,
+	HAIXIU
+}
+var time_start:state = state.SIT
+var can_drag: bool
+var mouse_position:Vector2i
+var next_state:state
+var sitnow:bool = true
+var idelnow:bool = false
+
+
+func  _ready() -> void:
+	ideltime.visible = false
+func _process(delta: float) -> void:
+	what_state ()
+	idel()
+	sit()
+func what_state ():
+	match time_start:
+		state.IDEL:
+			playCT("idela")
+			idelnow = true
+			sitnow = false
+		state.SIT:
+			playCT("sit")
+			idelnow = false
+			sitnow = true
+
+
+func idel():
+	if idelnow == true:
+		$ideltime.visible = true
+		$sittime.visible = false
+	
+func sit():
+	if sitnow == true:
+	
+		$ideltime.visible = false
+		$sittime.visible = true
+func playCT(mingzi):
+	if time_start == state.SIT:
+		$sittime.play(mingzi)
+	elif time_start == state.IDEL:
+		$ideltime.play(mingzi)
+func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	if event is InputEventMouseButton :
+		if event.button_index == MOUSE_BUTTON_MASK_RIGHT:
+			if event.pressed:
+				can_drag = true
+				mouse_position = get_global_mouse_position()
+			else:
+				can_drag = false
+		#get_tree().root.position += Vector2i(event.relative)
+		#print("666")
+	if can_drag and event is InputEventMouseMotion:
+		DisplayServer.window_set_position(DisplayServer.mouse_get_position() - mouse_position)
+		
+		
+		
+	if event.is_action_pressed("queren"):
+		chat.emit()
+		
+
+
+func _on_area_2d_2_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	if event.is_action_pressed("queren"):
+		chat2.emit()
+		
+		
+func _on_area_2d_3_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	if event.is_action_pressed("queren"):
+		next_state = [state.IDEL,state.SIT].pick_random()
+		time_start = next_state
+		print(time_start)
+func _on_area_2_dd_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+	if event.is_action_pressed("queren"):
+		next_state = [state.IDEL,state.SIT].pick_random()
+		time_start = next_state
+		print(time_start)
+
+
+
+
+
+
+
+
+
+
+
+
+
